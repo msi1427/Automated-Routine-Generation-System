@@ -1,0 +1,4 @@
+COURSE = {A,B,C,D,E,F};
+periods = 6; 
+days = 5;
+rooms = 2;
