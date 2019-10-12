@@ -6,11 +6,11 @@ include "globals.mzn";
 
 %courses of 1st Semester
 enum COURSE1;
-%courses of 2nd Semester
-enum COURSE2;
 %courses of 3rd Semester
+enum COURSE2;
+%courses of 5th Semester
 enum COURSE3;
-%courses of 4th Semester
+%courses of 7th Semester
 enum COURSE4;
 %number of periods
 enum PERIODS;
@@ -51,34 +51,30 @@ array[DAYS,COURSE4] of var int : checker4;
 
 %constraints
 
-%common constraint for all 
-%This contraint is to check if we can allocate every period of everyday of every section of every semester within my allocated rooms
-constraint forall(d in DAYS) ( forall(p in PERIODS) ( ((timetable11[d,p] != 11) + (timetable12[d,p] != 11) + (timetable21[d,p] != 11) + (timetable22[d,p] != 11) + (timetable31[d,p] != 11) + (timetable32[d,p] != 11) + (timetable41[d,p] != 10) + (timetable42[d,p] != 10)) <= NUMROOM ) );
-
 % Constraints for For Year 1
 
-%every cell of checker can't have a bigger value than the assigned daily periods of the respective courses
+%CS1: every cell of checker can't have a bigger value than the assigned daily periods of the respective courses
 constraint forall(d in DAYS) (forall(c in COURSE1)(0 <= checker1[d,c] /\ checker1[d,c] <= DAILYPERIODS1[c]) );
 
-%this is to specify the lab classes, the lab classes will be of two classes in a day
+%CS2: this is to specify the lab classes, the lab classes will be of two periods in a day
 constraint forall(d in DAYS) (forall(c in COURSE1)( if DAILYPERIODS1[c] = 2 then ( (checker1[d,c] = 0) \/ (checker1[d,c] = 2) ) endif) );
 
-%every column of checker table won't have a sum more than Total periods, because total periods define the number of periods required in one week
+%CS3: every column of checker table won't have a sum more than TOTALPERIODS, because total periods define the number of periods required in one week.
 constraint forall(c in COURSE1)( sum( d in DAYS) (checker1[d,c]) =  TOTALPERIODS1[c]);
 
-%every row of checker table won't have a sum more than 6, because in one day there can't be more than 6 periods
+%CS4: every row of checker table won't have a sum more than 6, because in one day there can't be more than 6 periods
 constraint forall(d in DAYS)( sum( c in COURSE1) (checker1[d,c]) = 6);
 
-%there won't be more than two lab classes in a day
+%CS5: there won't be more than two lab classes in a day
 constraint forall(d in DAYS)( sum( c in COURSE1) (checker1[d,c] = 2) <= 2);
 
-%Everyday there will be atleast a gap period
+%CS6: Everyday there will be at least a gap period
 constraint forall(d in DAYS) (checker1[d,COURSE1[11]]>=1);
 
-%this constraint is basically replication checker table to timetable by equalizing the number of courses in the same day for section A
+%CS7: this constraint is basically reforming timetable using checker table by equalizing the number of courses in the same day for section A
 constraint forall(d in DAYS)( forall(c in COURSE1) ( sum( p in PERIODS ) ( timetable11[d,p] = c ) =  checker1[d,c]) );
 
-%these constraints are to specify that the lab classes will be in consequent periods ignoring break time.
+%CS8: these constraints are to specify that the lab classes will be in consequent periods ignoring break time.
 constraint
 (timetable11[DAYS[1],PERIODS[1]]=8 /\ timetable11[DAYS[1],PERIODS[2]]=8) \/ (timetable11[DAYS[1],PERIODS[3]]=8 /\ timetable11[DAYS[1],PERIODS[4]]=8) \/ (timetable11[DAYS[1],PERIODS[5]]=8 /\ timetable11[DAYS[1],PERIODS[6]]=8) \/
 (timetable11[DAYS[2],PERIODS[1]]=8 /\ timetable11[DAYS[2],PERIODS[2]]=8) \/ (timetable11[DAYS[2],PERIODS[3]]=8 /\ timetable11[DAYS[2],PERIODS[4]]=8) \/ (timetable11[DAYS[2],PERIODS[5]]=8 /\ timetable11[DAYS[2],PERIODS[6]]=8) \/
@@ -100,7 +96,7 @@ constraint
 (timetable11[DAYS[4],PERIODS[1]]=10 /\ timetable11[DAYS[4],PERIODS[2]]=10) \/ (timetable11[DAYS[4],PERIODS[3]]=10 /\ timetable11[DAYS[4],PERIODS[4]]=10) \/ (timetable11[DAYS[4],PERIODS[5]]=10 /\ timetable11[DAYS[4],PERIODS[6]]=10) \/
 (timetable11[DAYS[5],PERIODS[1]]=10 /\ timetable11[DAYS[5],PERIODS[2]]=10) \/ (timetable11[DAYS[5],PERIODS[3]]=10 /\ timetable11[DAYS[5],PERIODS[4]]=10) \/ (timetable11[DAYS[5],PERIODS[5]]=10 /\ timetable11[DAYS[5],PERIODS[6]]=10);
 
-%this constraint is basically replication checker table to timetable by equalizing the number of courses in the same day for section B
+%this constraint is basically reforming timetable using checker table by equalizing the number of courses in the same day for section B
 constraint forall(d in DAYS)( forall(c in COURSE1) ( sum( p in PERIODS ) ( timetable12[d,p] = c ) =  checker1[d,c]) );
 
 constraint
@@ -124,8 +120,10 @@ constraint
 (timetable12[DAYS[4],PERIODS[1]]=10 /\ timetable12[DAYS[4],PERIODS[2]]=10) \/ (timetable12[DAYS[4],PERIODS[3]]=10 /\ timetable12[DAYS[4],PERIODS[4]]=10) \/ (timetable12[DAYS[4],PERIODS[5]]=10 /\ timetable12[DAYS[4],PERIODS[6]]=10) \/
 (timetable12[DAYS[5],PERIODS[1]]=10 /\ timetable12[DAYS[5],PERIODS[2]]=10) \/ (timetable12[DAYS[5],PERIODS[3]]=10 /\ timetable12[DAYS[5],PERIODS[4]]=10) \/ (timetable12[DAYS[5],PERIODS[5]]=10 /\ timetable12[DAYS[5],PERIODS[6]]=10);
 
-%both section won't have same course on the same period of the same day
+%CS9: both section won't have same course on the same period of the same day
 constraint forall(d in DAYS) ( forall(p in PERIODS) ( if(timetable11[d,p]!=11) then timetable11[d,p]!=timetable12[d,p] endif ));
+
+
 
 % Constraints for For Year 2
 
@@ -352,6 +350,13 @@ constraint
 (timetable42[DAYS[5],PERIODS[1]]=9 /\ timetable42[DAYS[5],PERIODS[2]]=9) \/ (timetable42[DAYS[5],PERIODS[3]]=9 /\ timetable42[DAYS[5],PERIODS[4]]=9) \/ (timetable42[DAYS[5],PERIODS[5]]=9 /\ timetable42[DAYS[5],PERIODS[6]]=9);
 
 constraint forall(d in DAYS) ( forall(p in PERIODS) ( if(timetable41[d,p]!=11) then timetable41[d,p]!=timetable42[d,p] endif ));
+
+%common constraint for all 
+%CS10: This constraint is to check if we can allocate every period of everyday of every section of every semester within my allocated rooms
+constraint forall(d in DAYS) ( forall(p in PERIODS) ( ((timetable11[d,p] != 11) + (timetable12[d,p] != 11) + (timetable21[d,p] != 11) + (timetable22[d,p] != 11) + (timetable31[d,p] != 11) + (timetable32[d,p] != 11) + (timetable41[d,p] != 10) + (timetable42[d,p] != 10)) <= NUMROOM ) );
+
+%CS11: We can fix the class for a particular required course on a particular period of a particular day 
+constraint timetable42[DAYS[3],PERIODS[1]]=3;
 
 
 %objective
