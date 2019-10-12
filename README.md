@@ -1,3 +1,3 @@
 # RoutineAI
-We give course data and other things necessary to the model and we get a routine that satisfies all our constraints.  
+User can give course data and other necessary necessary to the model and we get a routine that satisfies all our constraints. Basically made for routine management in IUT but applicable for other universities.
 Language : Minizinc
